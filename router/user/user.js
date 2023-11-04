@@ -7,7 +7,7 @@ const upload = multer({ dest: 'uploads/' });
 const authToken = require("../../middlewar/auth");
 
 
-router.post("/register",upload.fields([{ name: 'aadhaarImage', maxCount: 1 },{ name: 'panImage', maxCount: 1 },{ name: 'voterCard', maxCount: 1 },{ name: 'drvingLicence', maxCount: 1 },{ name: 'other', maxCount: 1 },]),userController.Register);
+router.post("/register",upload.fields([{ name: 'aadhaarImage' },{ name: 'panImage'},{ name: 'voterCard' },{ name: 'drvingLicence'},{ name: 'other'},]),userController.Register);
 
 router.post("/otpSend",userController.otpSend);
 router.post("/login/:mobileNo",userController.login);

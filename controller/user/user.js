@@ -6,58 +6,98 @@ const order = require('../../model/user/order');
 const plan = require('../../model/admin/addPlan');
 
 module.exports = {
+    // Register: async (req, res) => {
+    //     try {
+    //         const { name, mobileNo, DOB, GST_Number } = req.body;
+    //         // const { aadhaarImage, panImage, voterCard, drvingLicence, other } = req.files;
+    //         const aadhaarImage = req.files.aadhaarImage[0].path;
+    //         console.log(req.files);
+    //         const panImage = req.files.panImage[0].path;
+    //         const voterCard = req.files.voterCard[0].path;
+    //         const drvingLicence = req.files.drvingLicence[0].path;
+    //         const other = req.files.other[0].path;
+
+    //         // Validate that mobileNo is not empty and has at most ten digits
+    //         if (!mobileNo || !/^\d{10,10}$/.test(mobileNo)) {
+    //             res.status(400).send({ success: false, msg: "Invalid mobileNo" });
+    //             return;
+    //         }
+    //         if (!mobileNo) {
+    //             res.status(400).send({ success: false, msg: "mobileNo is required" });
+    //             return;
+    //         }
+    //         // Check if the mobileNo already exists in the database
+    //         const userData = await usermodel.findOne({ mobileNo: mobileNo });
+    //         if (userData) {
+    //             res.status(201).send({ success: false, msg: "mobileNo already exists" });
+    //             return;
+    //         }
+    //         const Register = new usermodel({
+    //             name,
+    //             mobileNo,
+    //             DOB,
+    //             GST_Number,
+    //             document: {
+    //                 aadhaarImage,
+    //                 panImage,
+    //                 voterCard,
+    //                 drvingLicence,
+    //                 other
+    //             }
+    //         });
+    //         const user = await Register.save();
+    //         res.status(200).send({ success: true, data: user });
+
+    //     } catch (error) {
+    //         console.log(error);
+    //         res.status(400).send({ status: 400, message: error.message });
+    //     }
+    // },
+  
     Register: async (req, res) => {
         try {
-            const { name, mobileNo, password, DOB, aadhaarNo, panNo ,GST_Number } = req.body;
-            // const { aadhaarImage, panImage, voterCard, drvingLicence, other } = req.files;
-
-            const aadhaarImage = req.files.aadhaarImage[0].path;
-            const panImage = req.files.panImage[0].path;
-            const voterCard = req.files.voterCard[0].path;
-            const drvingLicence = req.files.drvingLicence[0].path;
-            const other = req.files.other[0].path;
-
-             // Validate that mobileNo is not empty and has at most ten digits
-        if (!mobileNo || !/^\d{10,10}$/.test(mobileNo)) {
-            res.status(400).send({ success: false, msg: "Invalid mobileNo" });
-            return;
-        }
-
-            if (!mobileNo) {
-                res.status(400).send({ success: false, msg: "mobileNo is required" });
-                return;
+            const { name, mobileNo, DOB, GST_Number } = req.body;
+    
+            // Check if there are any image files uploaded
+            if (!req.files ||
+                (!req.files.aadhaarImage && !req.files.panImage && !req.files.voterCard && !req.files.drvingLicence && !req.files.other)) {
+                return res.status(400).send({ success: false, msg: "At least one image is required" });
             }
+    
+            // Validate that mobileNo is not empty and has at most ten digits
+            if (!mobileNo || !/^\d{10}$/.test(mobileNo)) {
+                return res.status(400).send({ success: false, msg: "Invalid mobileNo" });
+            }
+    
             // Check if the mobileNo already exists in the database
             const userData = await usermodel.findOne({ mobileNo: mobileNo });
             if (userData) {
-                res.status(201).send({ success: false, msg: "mobileNo already exists" });
-                return;
+                return res.status(201).send({ success: false, msg: "mobileNo already exists" });
             }
-            const hashedPassword = bcrypt.hashSync(password, 10);
+    
             const Register = new usermodel({
                 name,
                 mobileNo,
-                password: hashedPassword,
                 DOB,
                 GST_Number,
                 document: {
-                    aadhaarNo,
-                    panNo,
-                    aadhaarImage,
-                    panImage,
-                    voterCard,
-                    drvingLicence,
-                    other
+                    aadhaarImage: req.files.aadhaarImage ? req.files.aadhaarImage[0].path : null,
+                    panImage: req.files.panImage ? req.files.panImage[0].path : null,
+                    voterCard: req.files.voterCard ? req.files.voterCard[0].path : null,
+                    drvingLicence: req.files.drvingLicence ? req.files.drvingLicence[0].path : null,
+                    other: req.files.other ? req.files.other[0].path : null
                 }
             });
+    
             const user = await Register.save();
             res.status(200).send({ success: true, data: user });
-
+    
         } catch (error) {
             console.log(error);
             res.status(400).send({ status: 400, message: error.message });
         }
     },
+    
 
     otpSend: async (req, res) => {   // otp send on number
         try {
@@ -88,7 +128,9 @@ module.exports = {
         try {
             const mobileNo = req.params.mobileNo;
             const otp = req.body.otp;
+            console.log(req.body,req.params);
             const findotp = await OtpModel.findOne({ otp: otp, mobileNo: mobileNo });
+            console.log(findotp);
             if (!findotp) {
                 return res.status(401).json({ message: 'otp_not_found' });
             }
@@ -139,7 +181,7 @@ module.exports = {
             }
             res.send({ result: planget });
         } catch (error) {
-           console.log(error);
+            console.log(error);
         }
     },
 

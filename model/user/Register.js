@@ -12,30 +12,16 @@ const userSchema = new mongoose.Schema({
         trim: true,
         required: true,
     },
-    password: {
-        type: String,
-        required: true,
-    },
     DOB: {
         type: Date,
         required: true
     },
     document: {
-        aadhaarNo: {
-            type: String,
-            // required: true
-        },
         aadhaarImage: {    // image
             type: String,
-            // required: true
-        },
-        panNo: {
-            type: String,
-            // required: true
         },
         panImage: {   // image
             type: String,
-            // required: true
         },
         voterCard: {  // image
             type: String
