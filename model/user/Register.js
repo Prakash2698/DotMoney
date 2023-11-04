@@ -33,8 +33,9 @@ const userSchema = new mongoose.Schema({
             type: String,
         }
     },
-    GST_Number:{
-       type:String
+    documentNo:{
+       type:String,
+       required:true
     },
     token:{
         type:String

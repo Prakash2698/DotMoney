@@ -56,7 +56,7 @@ module.exports = {
   
     Register: async (req, res) => {
         try {
-            const { name, mobileNo, DOB, GST_Number } = req.body;
+            const { name, mobileNo, DOB, documentNo } = req.body;
     
             // Check if there are any image files uploaded
             if (!req.files ||
@@ -79,7 +79,7 @@ module.exports = {
                 name,
                 mobileNo,
                 DOB,
-                GST_Number,
+                documentNo,
                 document: {
                     aadhaarImage: req.files.aadhaarImage ? req.files.aadhaarImage[0].path : null,
                     panImage: req.files.panImage ? req.files.panImage[0].path : null,
@@ -113,6 +113,7 @@ module.exports = {
             });
             // Send OTP to the mobile number using MSG91
             const otpSent = await helper.generateOtpWithMSG91({ mobileNo, otp });
+
             console.log("OTP send on phone number>>>", otpSent);
             const Otp = await otpS.save();
             res.send({ status: 200, message: "sucess", Otp })
