@@ -4,6 +4,8 @@ const helper = require('../../helper/common');
 const OtpModel = require("../../model/user/otp");
 const order = require('../../model/user/order');
 const plan = require('../../model/admin/addPlan');
+const Razorpay = require('razorpay');
+const paymentModel = require("../../model/user/payment");
 
 module.exports = {
     // Register: async (req, res) => {
@@ -53,28 +55,28 @@ module.exports = {
     //         res.status(400).send({ status: 400, message: error.message });
     //     }
     // },
-  
+
     Register: async (req, res) => {
         try {
             const { name, mobileNo, DOB, documentNo } = req.body;
-    
+
             // Check if there are any image files uploaded
             if (!req.files ||
                 (!req.files.aadhaarImage && !req.files.panImage && !req.files.voterCard && !req.files.drvingLicence && !req.files.other)) {
                 return res.status(400).send({ success: false, msg: "At least one image is required" });
             }
-    
+
             // Validate that mobileNo is not empty and has at most ten digits
             if (!mobileNo || !/^\d{10}$/.test(mobileNo)) {
                 return res.status(400).send({ success: false, msg: "Invalid mobileNo" });
             }
-    
+
             // Check if the mobileNo already exists in the database
             const userData = await usermodel.findOne({ mobileNo: mobileNo });
             if (userData) {
                 return res.status(201).send({ success: false, msg: "mobileNo already exists" });
             }
-    
+
             const Register = new usermodel({
                 name,
                 mobileNo,
@@ -88,16 +90,15 @@ module.exports = {
                     other: req.files.other ? req.files.other[0].path : null
                 }
             });
-    
+
             const user = await Register.save();
             res.status(200).send({ success: true, data: user });
-    
+
         } catch (error) {
             console.log(error);
             res.status(400).send({ status: 400, message: error.message });
         }
     },
-    
 
     otpSend: async (req, res) => {   // otp send on number
         try {
@@ -129,7 +130,7 @@ module.exports = {
         try {
             const mobileNo = req.params.mobileNo;
             const otp = req.body.otp;
-            console.log(req.body,req.params);
+            console.log(req.body, req.params);
             const findotp = await OtpModel.findOne({ otp: otp, mobileNo: mobileNo });
             console.log(findotp);
             if (!findotp) {
@@ -259,6 +260,123 @@ module.exports = {
         } catch (error) {
             console.log(error);
         }
+    },
+
+
+    create_orderId: async (req, res) => {
+        try {
+            const { amount, description } = req.body;
+
+            var options = {
+                amount: amount * 100,  // amount in the smallest currency unit
+                currency: "INR",
+                receipt: "rcp1"
+            };
+            const instance = new Razorpay({
+                key_id: 'rzp_test_AOjY52pvdqhUEh',
+                key_secret: 'tB1CHTW3BvEb9TR06ILUCBWV',
+            })
+            const order = await instance.orders.create(options)
+            const payment = new paymentModel({
+                orderId: order.id,
+                amount: amount,
+                description: description,
+            });
+            const savedPayment = await payment.save();
+            res.status(200).json({
+                message: "Payment created",
+                payment: savedPayment,
+                razorpayOrder: order,
+            });
+
+        } catch (error) {
+            console.log(error);
+        }
+    },
+    
+payment_vefify : async(req,res)=>{
+
+    try {
+        const { paymentId, orderId } = req.body;
+        // Find the payment using razorpay_order_id
+        const payment = await paymentModel.findOne({ paymentId });
+        //   console.log(">>>>>>>>>",payment);
+
+        if (!payment) {
+            return res.status(404).json({ error: 'Payment not found' });
+        }
+        // Update the payment status to "confirmed"
+        payment.status = 'confirmed';
+        await payment.save();
+        const order = await order_ProductModel.findOne({ orderId });
+        if (!order) {
+            return res.status(404).json({ error: 'order not found' });
+        }
+        order.status = 'sucess';
+        await order.save();
+
+        res.status(200).json({ message: 'payment_confirmed and order sucess' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'An error occurred' });
     }
+},
+
+
+    // razorpay_create_payment: async (req, res) => {
+    //     try {
+    //         const { amount, description } = req.body;
+    //         // Create a Razorpay order
+    //         const options = {
+    //             amount: amount * 100, // Amount in paise (1 INR = 100 paise)
+    //             currency: "INR",
+    //             payment_capture: 1, // Auto-capture payment
+    //         };
+    //         const order = await Razorpay.orders.create(options);
+    //         const payment = new paymentModel({
+    //             orderId: order.id,
+    //             amount: amount,
+    //             description: description,
+    //         });
+    //         const savedPayment = await payment.save();
+    //         res.status(200).json({
+    //             message: "Payment created",
+    //             payment: savedPayment,
+    //             razorpayOrder: order,
+    //         });
+    //     } catch (error) {
+    //         console.error(error);
+    //         res.status(500).json({ error: "An error occurred" });
+    //     }
+    // },
+    // ======================= confirm product payment ============================
+    payment_callback: async (req, res) => {
+        try {
+            const { paymentId, orderId } = req.body;
+            // Find the payment using razorpay_order_id
+            const payment = await paymentModel.findOne({ paymentId });
+            //   console.log(">>>>>>>>>",payment);
+
+            if (!payment) {
+                return res.status(404).json({ error: 'Payment not found' });
+            }
+            // Update the payment status to "confirmed"
+            payment.status = 'confirmed';
+            await payment.save();
+            const order = await order_ProductModel.findOne({ orderId });
+            if (!order) {
+                return res.status(404).json({ error: 'order not found' });
+            }
+            order.status = 'sucess';
+            await order.save();
+
+            res.status(200).json({ message: 'payment_confirmed and order sucess' });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: 'An error occurred' });
+        }
+    }
+
+
 }
 

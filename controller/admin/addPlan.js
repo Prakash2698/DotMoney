@@ -19,46 +19,45 @@ module.exports = {
             if (!add_plan) {
                 res.send({ status: 400, message: "plan not added" });
             }
-            res.send({status:200, message:"plan added successfuly",result:add_plan});
+            res.send({ status: 200, message: "plan added successfuly", result: add_plan });
 
         } catch (error) {
 
         }
     },
 
-    getuser : async(req,res)=>{
-
+    getuser: async (req, res) => {
         const allUser = await getUser.find();
-        if(!allUser){
-            res.send({message:"user not found"})
+        if (!allUser) {
+            res.send({ message: "user not found" })
         }
-        res.send({result:allUser});
+        res.send({ result: allUser });
     },
 
-    getOneUser: async(req,res)=>{
+    getOneUser: async (req, res) => {
         try {
             const userId = req.params.userId;
-            const user = await getUser.findById(userId);        
+            const user = await getUser.findById(userId);
             if (!user) {
-              return res.status(404).json({ message: 'User not found' });
+                return res.status(404).json({ message: 'User not found' });
             }
-        
+
             res.json(user); // Send the user details as JSON response
-          } catch (error) {
+        } catch (error) {
             console.error(error);
             res.status(500).json({ message: 'Server error' });
-          }
+        }
     },
 
-    orderHistory: async(req,res)=>{
+    orderHistory: async (req, res) => {
         try {
-        const orderGet = await orderHistory.find();
-        if(!orderGet) {
-            res.send({status:402, message:"order_not_found"})
-        }
-        res.send({message:"sucess",result:orderGet});
+            const orderGet = await orderHistory.find();
+            if (!orderGet) {
+                res.send({ status: 402, message: "order_not_found" })
+            }
+            res.send({ message: "sucess", result: orderGet });
         } catch (error) {
-           console.log(error); 
+            console.log(error);
         }
     }
 
