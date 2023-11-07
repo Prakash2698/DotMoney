@@ -273,8 +273,8 @@ module.exports = {
                 receipt: "rcp1"
             };
             const instance = new Razorpay({
-                key_id: 'rzp_test_AOjY52pvdqhUEh',
-                key_secret: 'tB1CHTW3BvEb9TR06ILUCBWV',
+                key_id: 'rzp_test_8ppdbFvOJBzLKD',
+                key_secret: 'uX8wRveJKysxP4HhKG4IBCzr',
             })
             const order = await instance.orders.create(options)
             const payment = new paymentModel({
