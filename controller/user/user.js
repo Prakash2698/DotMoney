@@ -2,10 +2,10 @@ const usermodel = require("../../model/user/Register");
 const bcrypt = require("bcrypt"); // Import the bcrypt library
 const helper = require('../../helper/common');
 const OtpModel = require("../../model/user/otp");
-const order = require('../../model/user/order');
+const orderModel = require('../../model/user/order');
 const plan = require('../../model/admin/addPlan');
 const Razorpay = require('razorpay');
-const paymentModel = require("../../model/user/payment");
+// const paymentModel = require("../../model/user/order");
 
 module.exports = {
     // Register: async (req, res) => {
@@ -265,7 +265,7 @@ module.exports = {
 
     create_orderId: async (req, res) => {
         try {
-            const { amount, description } = req.body;
+            const {planId ,amount, description } = req.body;
 
             var options = {
                 amount: amount * 100,  // amount in the smallest currency unit
@@ -277,31 +277,30 @@ module.exports = {
                 key_secret: 'uX8wRveJKysxP4HhKG4IBCzr',
             })
             const order = await instance.orders.create(options)
-            const payment = new paymentModel({
+            const payment = new orderModel({
                 orderId: order.id,
                 amount: amount,
+                planId:planId,
                 description: description,
             });
             const savedPayment = await payment.save();
             res.status(200).json({
                 message: "Payment created",
                 payment: savedPayment,
+                key_id:'rzp_test_8ppdbFvOJBzLKD',
+                description:description,
                 razorpayOrder: order,
             });
-
         } catch (error) {
             console.log(error);
         }
     },
     
 payment_vefify : async(req,res)=>{
-
     try {
         const { paymentId, orderId } = req.body;
         // Find the payment using razorpay_order_id
         const payment = await paymentModel.findOne({ paymentId });
-        //   console.log(">>>>>>>>>",payment);
-
         if (!payment) {
             return res.status(404).json({ error: 'Payment not found' });
         }

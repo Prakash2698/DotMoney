@@ -1,30 +1,28 @@
 const mongoose = require("mongoose");
-bcrypt = require('bcrypt');
-const order_product = new mongoose.Schema({
 
-    userId: {
-        // Reference to the user who placed the order
-        type: mongoose.Schema.Types.ObjectId, ref: "user"
+const PaymentSchema = new mongoose.Schema({
+    userId: { // Add a field for the user ID
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "user",
     },
-    // Reference to the plan in the order
+    orderId: {
+        type: String,
+    },
+    amount: {
+        type: Number,
+        required: true, 
+    },
     planId: {
         type: mongoose.Schema.Types.ObjectId, ref: "plan"
     },
-    quantity: {
-        type: Number,
+    description: {
+        type: String,
     },
-    totalPrice: Number,
-
     status: {
         type: String,
-        enum: ['sucess', 'pending'],
-        default: 'pending'
-    },
-    created: {
-        type: Date,
-        default: Date.now
+        enum: ['pending','failed', 'confirmed'],
+        default: 'pending',
     }
-
 });
 
-module.exports = mongoose.model("order", order_product);
+module.exports = mongoose.model("order", PaymentSchema);
