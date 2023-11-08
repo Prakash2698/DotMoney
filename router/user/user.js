@@ -14,7 +14,6 @@ router.post("/login/:mobileNo",userController.login);
 router.post("/resendOTP/:mobileNo", userController.resendOTP);
 // router.post("/user_login",userController.user_login);
 router.get("/getPlan",userController.getPlan);
-router.post("/orderPlan",authToken,userController.orderPlan);
 router.post("/create_orderId",authToken,userController.create_orderId);
 
 

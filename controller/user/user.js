@@ -215,58 +215,10 @@ module.exports = {
     //         res.status(500).json({ success: false, message: "Something went wrong" });
     //     }
     // }
-    // orderPlan: async(req,res)=>{
-    //     const {userId, planId ,quantity } = req.body;
-    //     const planO = await plan.findById(planId);      
-    //     if (!planO) {
-    //       return res.status(404).json({ message: "planId not found" });
-    //     }      
-    //     // Calculate total price
-    //     const totalPrice = plan.amount * quantity;
-
-    //     // const totalPrice = plan.amount * quantity;  
-    //     const orderplan = new order({
-    //         userId,
-    //         planId,
-    //         quantity,
-    //         totalPrice,
-    //       });      
-    //       const savedOrder = await orderplan.save();
-    //       res.status(201).json(savedOrder);
-    // }
-
-    orderPlan: async (req, res) => {
-        try {
-            const { userId, planId, quantity } = req.body;
-            const planO = await plan.findById(planId);
-            if (!planO) {
-                return res.status(404).json({ message: "planId not found" });
-            }
-            // Validate that plan.amount is a valid number and quantity is a positive integer
-            if (typeof planO.amount !== 'number' || isNaN(planO.amount) || quantity <= 0 || !Number.isInteger(quantity)) {
-                return res.status(400).json({ message: "Invalid input for plan amount or quantity" });
-            }
-            // Calculate total price
-            const totalPrice = planO.amount * quantity;
-            const orderplan = new order({
-                userId,
-                planId,
-                quantity,
-                totalPrice,
-            });
-            const savedOrder = await orderplan.save();
-            res.status(201).json(savedOrder);
-
-        } catch (error) {
-            console.log(error);
-        }
-    },
-
-
+   
     create_orderId: async (req, res) => {
         try {
             const {planId ,amount, description } = req.body;
-
             var options = {
                 amount: amount * 100,  // amount in the smallest currency unit
                 currency: "INR",
