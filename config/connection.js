@@ -1,5 +1,9 @@
 const mongoose = require('mongoose');
-const mongodb= mongoose.connect("mongodb://0.0.0.0:27017/DOTMoney",{
+
+const url = "mongodb+srv://webersedigialifeapi:webersedigialifeapi@digialifeapipanel.5sgkx4e.mongodb.net/dotMoney";
+
+// local = "mongodb://0.0.0.0:27017/DOTMoney"
+const mongodb= mongoose.connect(url,{
     // useNewUrlParser: true,
     // useUnifiedTopology: true,
 })
