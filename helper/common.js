@@ -44,5 +44,5 @@ module.exports = {
     updateVerifyOtp: async (id, otpData) => {
         return otp.findOneAndUpdate(id, otpData);
       },
-
+// =======================
 }
