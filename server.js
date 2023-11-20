@@ -14,6 +14,8 @@ app.use(Router);
 
 // =============== admin route ====================
 const AdminRouter = require("./router/admin/addPlan");
+const adminsignup = require("./router/admin/signup");
+app.use(adminsignup);
 app.use(AdminRouter);
 
 app.listen(PORT,()=>{

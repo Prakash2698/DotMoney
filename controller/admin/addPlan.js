@@ -8,7 +8,6 @@ module.exports = {
     plan: async (req, res) => {
         try {
             const { title, provider, amount, description } = req.body;
-
             const add_plan = new plan({
                 title,
                 provider,
@@ -25,6 +24,55 @@ module.exports = {
 
         }
     },
+
+    // ============== update plan ===============================
+    updatePlan: async (req, res) => {
+        try {
+            const planId = req.params._id ;
+          const { title, provider, amount, description } = req.body;      
+          // Find the plan by its ID
+          const foundPlan = await plan.findById(planId);
+      
+          if (!foundPlan) {
+            return res.status(404).json({ success: false, message: "Plan not found" });
+          }
+      
+          // Update the plan properties
+          foundPlan.title = title || foundPlan.title;
+          foundPlan.provider = provider || foundPlan.provider;
+          foundPlan.amount = amount || foundPlan.amount;
+          foundPlan.description = description || foundPlan.description;      
+          // Save the updated plan
+          const updatedPlan = await foundPlan.save();
+      
+          res.status(200).json({ success: true, message: "Plan updated successfully", result: updatedPlan });
+        } catch (error) {
+          console.error(error);
+          res.status(500).json({ success: false, message: "Something went wrong" });
+        }
+      },
+
+// ===================== delete plan =========================
+deletePlan: async (req, res) => {
+    try {
+      const planId = req.params._id; // Fetch the plan ID from URL parameters
+//   console.log(planId);
+      // Find the plan by its ID
+      const foundPlan = await plan.findById(planId);
+  
+      if (!foundPlan) {
+        return res.status(404).json({ success: false, message: "Plan not found" });
+      }
+  
+      // Delete the plan
+      await plan.findByIdAndDelete(planId);
+  
+      res.status(200).json({ success: true, message: "Plan deleted successfully" });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ success: false, message: "Something went wrong" });
+    }
+  },
 
     getuser: async (req, res) => {
         const allUser = await getUser.find();
